@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  // ユーザーモデルの主要なフィールドです。
+  // id: 各ユーザーを一意に識別するための主キー。String型で、cuid() により自動生成されます。
+  id            String    @id @default(cuid())
+  // email: ユーザーのメールアドレス。他と重複しない(unique)必要があります。
+  email         String    @unique
+  // passwordHash: パスワードのハッシュ値を格納します。DB上のカラム名は "password_hash" になります。
+  passwordHash  String    @map("password_hash")
+  // name: ユーザーの表示名（任意）。
+  name          String?
+  // phone: 電話番号（任意）。
+  phone         String?
+  // role: ユーザーの役割を表すenum。デフォルトは SEEKER です。
+  role          UserRole  @default(SEEKER)
+  // createdAt: レコード作成日時。"created_at" というカラム名でDBに保存。
+  createdAt     DateTime  @default(now()) @map("created_at")
+  // updatedAt: レコード更新日時。"updated_at" というカラム名でDBに保存され、更新時に自動で変更。
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  
+  // farmlands: ユーザーが提供している農地情報のリレーション。1人のユーザー（PROVIDER）は複数の農地を持つことができます。
+  farmlands     Farmland[]
+  // inquiries: ユーザーが行った問い合わせ情報のリレーション。1人のユーザー（SEEKER）は複数の問い合わせを持つことができます。
+  inquiries     Inquiry[]
+  
+  @@map("users") // このモデルはデータベースの "users" テーブルにマッピングされます。
+}
+
+// UserRoleはユーザーの役割（区分）を示す列挙型です。
+// PROVIDER: 農地を提供する「提供者」ユーザー
+// SEEKER: 農地を探して問い合わせる「利用希望者」ユーザー
+enum UserRole {
+  PROVIDER  // 農地の提供者
+  SEEKER    // 農地の利用希望者
+}
+
+model Farmland {
+  // Farmlandモデルの主キー。各農地を一意に判別するためのIDで、String型です。デフォルト値はcuid()を使って自動生成されます。
+  id            String    @id @default(cuid())
+  
+  // 提供者（ユーザー）を示す外部キー。Userモデルのidと紐付いています。
+  // また、DB上のカラム名は "provider_id" になります。
+  providerId    String    @map("provider_id")
+  
+  // providerフィールドは、実際にUserモデルとのリレーションを表します。
+  // fields で使うフィールド（ここではproviderId）、references で参照先モデルの主キー（今回はUserのid）を指定します。
+  // onDelete: Cascade により、対応するUserが削除された場合、この農地も自動的に削除されます（リレーションの整合性確保）。
+  provider      User      @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  
+  name          String?
+  prefecture    String    @db.VarChar(50)
+  city          String    @db.VarChar(100)
+  address       String    @db.VarChar(255)
+  area          Float
+  price         Int?
+  
+  // @mapはPrismaのフィールド属性で、Prismaスキーマ上のフィールド名と実際のデータベースのカラム名が異なる場合に使用します。
+  // ここではPrismaモデルのavailableFromフィールドを、DB上の"available_from"カラムにマッピングしています。
+  availableFrom DateTime  @map("available_from")
+  availableTo   DateTime? @map("available_to")
+  
+  description   String?   @db.Text
+  latitude      Float?
+  longitude     Float?
+  images        Json
+  
+  status        FarmlandStatus @default(PUBLIC)
+  
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  
+  inquiries     Inquiry[]
+  
+  // createdAtカラムにインデックスを追加することで、
+  // ソート時のメモリ使用量を削減し、クエリパフォーマンスを向上させます
+  @@index([createdAt])
+  @@map("farmlands")
+}
+
+enum FarmlandStatus {
+  PUBLIC
+  PRIVATE
+  MATCHED
+}
+
+model Inquiry {
+  id          String        @id @default(cuid())
+  farmlandId  String        @map("farmland_id")
+  farmland    Farmland      @relation(fields: [farmlandId], references: [id], onDelete: Cascade)
+  userId      String        @map("user_id")
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  message     String        @db.Text
+  status      InquiryStatus @default(PENDING)
+  
+  createdAt   DateTime      @default(now()) @map("created_at")
+  
+  @@map("inquiries")
+}
+
+enum InquiryStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
