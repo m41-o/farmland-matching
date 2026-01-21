@@ -57,7 +57,7 @@ export function Header() {
               申請手続き
             </Link>
             <Link
-              href="#guide"
+              href="/#guide"
               className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
             >
               就農ガイド
@@ -119,7 +119,7 @@ export function Header() {
                 <FileText className="h-4 w-4" />
                 申請手続き
               </Link>
-              <Link href="#guide" className="text-sm font-medium py-2 text-muted-foreground">
+              <Link href="/#guide" className="text-sm font-medium py-2 text-muted-foreground">
                 就農ガイド
               </Link>
               <div className="flex gap-2 pt-2">
