@@ -39,25 +39,19 @@ function PopupPositioner({ selectedFarmland, onClose }: { selectedFarmland: Sear
   const [style, setStyle] = useState<React.CSSProperties>({ display: 'none' })
 
   useEffect(() => {
-    if (selectedFarmland && map) {
-      // ピンの画面座標を取得
-      const point = map.latLngToContainerPoint([selectedFarmland.lat, selectedFarmland.lng])
-      const mapContainer = map.getContainer()
-      const mapRect = mapContainer.getBoundingClientRect()
-      
-      // ピンの上に配置（ピンより60px上、画面座標基準）
+    if (selectedFarmland) {
+      // 右下に固定表示
       setStyle({
         position: 'fixed',
-        top: `${mapRect.top + point.y - 60}px`,
-        left: `${mapRect.left + point.x}px`,
-        transform: 'translateX(-50%)',
+        bottom: '20px',
+        right: '20px',
         display: 'block',
-        zIndex: 50
+        zIndex: 9999
       })
     } else {
       setStyle({ display: 'none' })
     }
-  }, [selectedFarmland, map])
+  }, [selectedFarmland])
 
   if (!selectedFarmland) return null
 

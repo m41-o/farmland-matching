@@ -1,7 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { Sprout, Menu, X, Search, PlusCircle, FileText, User } from "lucide-react"
+import Image from "next/image"
+import { Menu, X, Search, PlusCircle, FileText, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { useSession, signOut } from "next-auth/react"
@@ -19,7 +20,13 @@ export function Header() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2">
-            <Sprout className="h-8 w-8 text-primary" />
+            <Image
+              src="/images/17607-300x300.png"
+              alt="農地マッチング ロゴ"
+              width={32}
+              height={32}
+              className="rounded-full"
+            />
             <span className="font-semibold text-lg text-foreground">農地マッチング</span>
           </Link>
 

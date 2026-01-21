@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
 import {
   MapPin,
   Maximize,
@@ -98,6 +99,8 @@ export function DetailPageContent({ id }: DetailPageContentProps) {
   const [farmland, setFarmland] = useState<Farmland | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  // 拡大表示する画像のためのstate
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
 
   const progressPercent = ((currentStep - 1) / (rentalSteps.length - 1)) * 100
 
@@ -167,7 +170,7 @@ export function DetailPageContent({ id }: DetailPageContentProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 rounded-xl overflow-hidden bg-muted h-96">
               {farmland.images && farmland.images.length > 0 ? (
                 <>
-                  <div className="md:row-span-2">
+                  <div className="md:row-span-2 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setSelectedImage(farmland.images[0])}>
                     <img
                       src={farmland.images[0]}
                       alt={farmland.name || "農地"}
@@ -180,7 +183,8 @@ export function DetailPageContent({ id }: DetailPageContentProps) {
                         key={index}
                         src={image}
                         alt={`農地 ${index + 2}`}
-                        className="w-full h-40 object-cover"
+                        className="w-full h-40 object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                        onClick={() => setSelectedImage(image)}
                       />
                     ))}
                   </div>
@@ -403,6 +407,21 @@ export function DetailPageContent({ id }: DetailPageContentProps) {
           </div>
         </div>
       </div>
+
+      {/* Image Zoom Dialog */}
+      <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
+        <DialogContent className="max-w-3xl max-h-[90vh] p-0">
+          {selectedImage && (
+            <div className="relative w-full h-full flex items-center justify-center bg-black">
+              <img
+                src={selectedImage}
+                alt="拡大画像"
+                className="max-w-full max-h-[85vh] object-contain"
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

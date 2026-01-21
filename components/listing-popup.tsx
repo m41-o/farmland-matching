@@ -40,7 +40,7 @@ export function ListingPopup({ listing, onClose }: ListingPopupProps) {
   const featureTags = getFeatureTags(listing)
 
   return (
-    <div className="bg-card rounded-lg shadow-lg border border-border overflow-hidden z-[9999] w-80">
+    <div className="bg-card rounded-xl shadow-2xl border border-border overflow-hidden z-[9999] w-80">
       {/* 画像 */}
       <div className="relative">
         <img

@@ -2,7 +2,6 @@
 
 import dynamic from 'next/dynamic'
 import type { SearchListing } from '@/components/search-page-content'
-import { ListingPopup } from '@/components/listing-popup'
 
 interface MapViewProps {
   farmlands: SearchListing[]
@@ -27,11 +26,6 @@ export function MapView({ farmlands, selectedFarmland, onSelectFarmland }: MapVi
         selectedFarmland={selectedFarmland}
         onSelectFarmland={onSelectFarmland}
       />
-      
-      {/* 詳細ポップアップ */}
-      {selectedFarmland && (
-        <ListingPopup listing={selectedFarmland} onClose={() => onSelectFarmland(null)} />
-      )}
     </div>
   )
 }

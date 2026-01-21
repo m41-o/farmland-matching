@@ -15,23 +15,6 @@ export const metadata: Metadata = {
   title: "農地マッチング | 日本の農地を、次世代へつなぐ",
   description:
     "新規就農者向けの全国農地マッチングプラットフォーム。あなたにぴったりの農地を見つけて、新しい農業ライフを始めましょう。",
-  icons: {
-    icon: [
-      {
-        url: "/icon-light-32x32.png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/icon-dark-32x32.png",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        url: "/icon.svg",
-        type: "image/svg+xml",
-      },
-    ],
-    apple: "/apple-icon.png",
-  },
 }
 
 export default function RootLayout({

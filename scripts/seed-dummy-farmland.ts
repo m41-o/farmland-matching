@@ -2,10 +2,27 @@ import { prisma } from '../app/lib/prisma'
 import { FarmlandStatus } from '@prisma/client'
 
 const seedFarmlands = async () => {
+  // ユーザーを先に作成
+  try {
+    await prisma.user.upsert({
+      where: { id: "cmkglviwc0000bpn472qa95nl" },
+      update: {},
+      create: {
+        id: "cmkglviwc0000bpn472qa95nl",
+        email: "provider@example.com",
+        passwordHash: "dummy_hash",
+        name: "農地提供者",
+        role: "PROVIDER"
+      }
+    });
+  } catch (e) {
+    console.log("User already exists or error:", e);
+  }
+
   const farmlands = [
     {
       id: "cmkgm2jd80002bpn42v0b8imy",
-      title: "日当たり良好な水田",
+      name: "日当たり良好な水田",
       prefecture: "長野県",
       city: "松本市",
       address: "梓川梓1234-5",
@@ -27,7 +44,7 @@ const seedFarmlands = async () => {
     },
     {
       id: "cmkgmnvk90008bpn45gcetyl2",
-      title: "有機栽培向け畑地",
+      name: "有機栽培向け畑地",
       prefecture: "千葉県",
       city: "南房総市",
       address: "白浜町5678",
@@ -49,7 +66,7 @@ const seedFarmlands = async () => {
     },
     {
       id: "cmkgmnvk90009bpn44tsug3ix",
-      title: "ビニールハウス付き農地",
+      name: "ビニールハウス付き農地",
       prefecture: "静岡県",
       city: "浜松市",
       address: "引佐町910",
@@ -71,7 +88,7 @@ const seedFarmlands = async () => {
     },
     {
       id: "cmkgmnvk9000abpn4q91zb5de",
-      title: "山間部の段々畑",
+      name: "山間部の段々畑",
       prefecture: "新潟県",
       city: "十日町市",
       address: "松代1122",
@@ -93,7 +110,7 @@ const seedFarmlands = async () => {
     },
     {
       id: "cmkgmnvka000bbpn4qowlyq0y",
-      title: "市街地近くの畑",
+      name: "市街地近くの畑",
       prefecture: "埼玉県",
       city: "さいたま市",
       address: "見沼区3344",
