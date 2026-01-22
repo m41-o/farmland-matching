@@ -1,36 +1,196 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🌱 農地マッチング（Farmland Matching）
 
-## Getting Started
+日本の農地を、次世代へつなぐ。新規就農者と地域をつなぐ全国農地マッチングプラットフォーム。
 
-First, run the development server:
+**🔗 本番環境:** https://farmland-matching.vercel.app
+
+---
+
+## 📋 プロジェクト概要
+
+「農地マッチング」は、新規就農を目指す人と、利用可能な農地の情報を持つ地域をマッチングするWebアプリケーションです。
+
+**ターゲット:**
+- 🌾 新規就農を希望する方
+- 🏘️ 農地の運用を考えている地域・個人
+- 👨‍🌾 農業従事者
+
+**ミッション:** 農地法の複雑な手続きをシンプルにし、日本の農地を有効活用する
+
+---
+
+## ✨ 実装済み機能
+
+### 1. **農地検索・地図表示**
+- 🗺️ Leaflet による全国農地の地図表示
+- 📍 都道府県別の農地ピン表示
+- 🎯 クリックで農地情報ポップアップ表示
+
+### 2. **農地詳細ページ**
+- 📸 複数画像表示・拡大機能（クリックで拡大）
+- 📝 農地の詳細情報表示
+  - 所在地、面積、賃料
+  - 水利・設備情報
+  - 通信環境（4G/5G）
+  - 提供者情報
+
+### 3. **ユーザー認証**
+- ✅ 新規登録（メール・パスワード）
+- 🔐 ログイン・ログアウト（NextAuth.js）
+- 👤 ユーザープロフィール
+- 🔑 Credentials Provider で安全な認証
+
+### 4. **農地登録機能**
+- ➕ 新規農地登録フォーム
+- 📸 複数画像アップロード
+- 📍 位置情報（緯度・経度）入力
+- 💾 データベースへの自動保存
+
+### 5. **申請手続きガイド**
+- 📖 4ステップの農地借用手続きプロセス表示
+- ✓ 進捗トラッカー表示
+
+### 6. **就農ガイド**
+- 📚 3ステップの就農ガイド（探す→申請→開始）
+- 📋 よくある質問（FAQ）セクション
+
+### 7. **レスポンシブデザイン**
+- 📱 モバイル対応UI
+- 🎨 ダークモード対応
+- ⚡ Tailwind CSS による高速スタイリング
+
+### 8. **その他の機能**
+- 🔍 農地フィルタリング・検索
+- ❤️ 出力予定（お気に入り機能の準備）
+- 📤 共有ボタン
+
+---
+
+## 🛠️ 技術スタック
+
+**フロントエンド:**
+- Next.js 16（App Router）
+- React 19
+- TypeScript
+- Tailwind CSS
+- Shadcn UI / Radix UI
+
+**バックエンド:**
+- Next.js API Routes
+- NextAuth.js（認証）
+- Prisma ORM
+
+**データベース:**
+- PostgreSQL（Supabase）
+
+**デプロイ:**
+- Vercel
+
+**その他:**
+- Leaflet（地図）
+- bcryptjs（パスワードハッシュ）
+
+---
+
+## 🚀 今後実装予定の機能
+
+### 優先度：高
+- [ ] **お気に入り機能** - ユーザーがお気に入りの農地を保存
+- [ ] **検索フィルタ拡張** - 面積、賃料、設備などで絞り込み
+- [ ] **申請機能** - 農地申請のオンライン完結
+- [ ] **通知機能** - 新着農地情報の通知
+- [ ] **マイページ充実** - ユーザーの登録農地一覧、申請履歴表示
+- [ ] **レビュー・評価機能** - 農地とサービスプロバイダーへの評価
+
+### 優先度：中
+- [ ] **画像最適化** - WebP形式対応、遅延読み込み
+- [ ] **チャット機能** - シーカーとプロバイダー間の直接連絡
+- [ ] **支払い機能** - 賃料のオンライン決済（Stripe など）
+- [ ] **SEO最適化** - 構造化データ、メタデータ改善
+- [ ] **多言語対応** - 英語など国際対応
+- [ ] **CSVエクスポート** - 農地情報のダウンロード
+
+### 優先度：低
+- [ ] **AI推奨エンジン** - ユーザーに最適な農地を推奨
+- [ ] **ライブチャット** - リアルタイム相談機能
+- [ ] **VRツアー** - 3D農地ビュー
+- [ ] **農業支援プログラム連携** - 融資や補助金情報の提供
+
+---
+
+## 📊 ページ構成
+
+| ページ | 説明 |
+|--------|------|
+| `/` | ホームページ（ヒーロー、就農ガイド、FAQ） |
+| `/search` | 農地検索ページ（地図表示） |
+| `/farmland/[id]` | 農地詳細ページ |
+| `/farmland/new` | 農地登録ページ |
+| `/application` | 申請手続きガイド |
+| `/login` | ログインページ |
+| `/register` | 新規登録ページ |
+| `/profile` | マイページ |
+
+---
+
+## 🧑‍💻 開発方法
+
+### ローカル環境セットアップ
 
 ```bash
+# リポジトリをクローン
+git clone https://github.com/m41-o/farmland-matching.git
+cd farmland-matching
+
+# 環境変数を設定
+cp .env.example .env.local
+
+# 依存関係をインストール
+npm install
+
+# データベースを同期
+npx prisma db push
+
+# 開発サーバーを起動
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 環境変数（`.env.local`）
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+DATABASE_URL=postgresql://...  # Supabase connection pool
+DIRECT_URL=postgresql://...     # Supabase direct connection
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=...             # Generate with: openssl rand -base64 32
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 📝 テストアカウント
 
-To learn more about Next.js, take a look at the following resources:
+```
+メール: dummy@example.com
+パスワード: dummy_password
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📄 ライセンス
 
-## Deploy on Vercel
+MIT License - 詳細は [LICENSE](./LICENSE) を参照
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 👥 貢献
+
+プルリクエストを歓迎します！大きな変更の場合は、まずイシューを開いて変更内容を説明してください。
+
+---
+
+## 📞 お問い合わせ
+
+ご質問や提案は、GitHub Issues で報告してください。
+
+---
+
+**農地マッチング** - 日本の農地を、次世代へつなぐ 🌱
