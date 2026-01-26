@@ -31,6 +31,8 @@ model User {
   farmlands     Farmland[]
   // inquiries: ユーザーが行った問い合わせ情報のリレーション。1人のユーザー（SEEKER）は複数の問い合わせを持つことができます。
   inquiries     Inquiry[]
+  // favorites: ユーザーがお気に入りに登録した農地のリレーション。1人のユーザーは複数の農地をお気に入りにできます。
+  favorites     Favorite[]
   
   @@map("users") // このモデルはデータベースの "users" テーブルにマッピングされます。
 }
@@ -79,6 +81,8 @@ model Farmland {
   updatedAt     DateTime  @updatedAt @map("updated_at")
   
   inquiries     Inquiry[]
+  // favorites: この農地をお気に入りに登録したユーザーのリレーション
+  favorites     Favorite[]
   
   // createdAtカラムにインデックスを追加することで、
   // ソート時のメモリ使用量を削減し、クエリパフォーマンスを向上させます
@@ -111,4 +115,32 @@ enum InquiryStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+// Favoriteモデル: ユーザーのお気に入り農地を管理する中間テーブル
+// 1人のユーザーは複数の農地をお気に入りにでき、
+// 1つの農地は複数のユーザーからお気に入り登録される（多対多の関係）
+model Favorite {
+  // 主キー: 一意の識別子を自動生成
+  id          String   @id @default(cuid())
+  
+  // ユーザーID: お気に入りを登録したユーザーへの参照
+  userId      String   @map("user_id")
+  // Userモデルとのリレーション: ユーザーが削除されたらお気に入りも削除（Cascade）
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // 農地ID: お気に入りに登録された農地への参照
+  farmlandId  String   @map("farmland_id")
+  // Farmlandモデルとのリレーション: 農地が削除されたらお気に入りも削除（Cascade）
+  farmland    Farmland @relation(fields: [farmlandId], references: [id], onDelete: Cascade)
+  
+  // 作成日時: お気に入り登録した日時を自動記録
+  createdAt   DateTime @default(now()) @map("created_at")
+  
+  // ユニーク制約: 同じユーザーが同じ農地を重複してお気に入りに追加できないようにする
+  // これにより、データの整合性を保証します
+  @@unique([userId, farmlandId])
+  
+  // テーブル名をスネークケースで指定（PostgreSQLの慣習に合わせる）
+  @@map("favorites")
 }

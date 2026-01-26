@@ -15,7 +15,6 @@ import {
   Wifi,
   Bath,
   ArrowLeft,
-  Heart,
   Share2,
   CheckCircle2,
   XCircle,
@@ -40,6 +39,8 @@ import {
   Loader,
 } from "lucide-react"
 import Link from "next/link"
+// お気に入りボタンコンポーネントをインポート
+import { FavoriteButton } from "@/components/favorite-button"
 
 interface Farmland {
   id: string
@@ -246,9 +247,8 @@ export function DetailPageContent({ id }: DetailPageContentProps) {
                   {farmland.name || `${farmland.prefecture}の農地`}
                 </h1>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="icon">
-                    <Heart className="h-4 w-4" />
-                  </Button>
+                  {/* お気に入りボタン: 実際にAPI連携して動作 */}
+                  <FavoriteButton farmlandId={id} />
                   <Button variant="outline" size="icon">
                     <Share2 className="h-4 w-4" />
                   </Button>
