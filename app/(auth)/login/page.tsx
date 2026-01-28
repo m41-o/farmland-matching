@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import Link from 'next/link'
+import { toastNotify } from '@/lib/notifications'
 
 // バリデーションスキーマ
 const loginSchema = z.object({
@@ -46,14 +47,19 @@ export default function LoginPage() {
 
       if (!result?.ok) {
         setServerError('メールアドレスまたはパスワードが正しくありません')
+        toastNotify.loginError()
         return
       }
 
-      // ログイン成功 → ホームページへ
+      // ログイン成功通知
+      toastNotify.loginSuccess()
+      
+      // ホームページへ
       router.push('/')
     } catch (error) {
       console.error('ログインエラー:', error)
       setServerError('ネットワークエラーが発生しました')
+      toastNotify.generalError('ネットワークエラーが発生しました')
     } finally {
       setIsLoading(false)
     }

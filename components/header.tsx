@@ -6,12 +6,14 @@ import { Menu, X, Search, PlusCircle, FileText, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { useSession, signOut } from "next-auth/react"
+import { toastNotify } from "@/lib/notifications"
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { data: session } = useSession()
 
   const handleLogout = async () => {
+    toastNotify.logoutSuccess()
     await signOut({ redirect: true, callbackUrl: "/" })
   }
 

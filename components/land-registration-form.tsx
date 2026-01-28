@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { toastNotify } from "@/lib/notifications"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -126,10 +127,12 @@ export function LandRegistrationForm() {
 
   const handleSubmit = async () => {
     setIsSubmitting(true)
+    const toastId = toastNotify.registrationStart()
+    
     try {
       // バリデーション：必須フィールドの確認
       if (!formData.prefecture || !formData.city || !formData.address || !formData.area || !formData.availableFrom) {
-        alert("必須項目を入力してください")
+        toastNotify.generalError("必須項目を入力してください")
         setIsSubmitting(false)
         return
       }
@@ -170,10 +173,12 @@ export function LandRegistrationForm() {
         throw new Error(error.error || "登録に失敗しました")
       }
 
+      // 成功通知
+      toastNotify.registrationSuccess(toastId)
       router.push("/")
     } catch (error: any) {
       console.error("エラー詳細:", error) // デバッグ用
-      alert(error.message || "登録中にエラーが発生しました")
+      toastNotify.registrationError(toastId)
     } finally {
       setIsSubmitting(false)
     }

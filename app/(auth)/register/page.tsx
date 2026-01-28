@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import Link from 'next/link'
 import { Check, X } from 'lucide-react'
+import { toastNotify, notify } from '@/lib/notifications'
 
 // パスワード要件をシンプルに
 const registerSchema = z.object({
@@ -96,6 +97,7 @@ export default function RegisterPage() {
     // パスワード一致の最終確認（念のため。Zodで処理されるはずですが安全策として）
     if (password !== confirmPassword) {
       setServerError('パスワードが一致していません');
+      notify.error('パスワード不一致', 'パスワードが一致していません');
       return;
     }
     
@@ -119,12 +121,16 @@ export default function RegisterPage() {
 
       if (!response.ok) {
         setServerError(result.error || 'ユーザー登録に失敗しました');
+        notify.error('登録失敗', result.error || 'ユーザー登録に失敗しました');
         return;
       }
 
+      // 登録成功通知
+      notify.success('登録完了！', 'ログインページへリダイレクトします');
       router.push('/login?registered=true');
     } catch (error) {
       setServerError('ネットワークエラーが発生しました');
+      toastNotify.generalError('ネットワークエラーが発生しました');
     } finally {
       setIsLoading(false);
     }
