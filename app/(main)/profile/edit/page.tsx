@@ -58,7 +58,7 @@ export default function ProfileEditPage() {
   // プロフィール保存
   const handleSaveProfile = async () => {
     setIsLoadingProfile(true)
-    const toastId = toastNotify.registrationStart()
+    const toastId = toastNotify.profileUpdateStart()
 
     try {
       const response = await fetch('/api/user/profile', {
@@ -84,9 +84,9 @@ export default function ProfileEditPage() {
         user: result.user,
       })
 
-      toastNotify.registrationSuccess(toastId)
+      toastNotify.profileUpdateSuccess(toastId)
     } catch (error: any) {
-      toastNotify.registrationError(toastId)
+      toastNotify.profileUpdateError(toastId)
       console.error('プロフィール更新エラー:', error)
     } finally {
       setIsLoadingProfile(false)

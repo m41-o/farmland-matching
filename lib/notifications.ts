@@ -82,6 +82,11 @@ export const toastNotify = {
   registrationSuccess: (toastId: string | number) => notify.updateLoading(toastId, '農地登録完了！'),
   registrationError: (toastId: string | number) => notify.updateLoading(toastId, '農地登録に失敗しました', 'error'),
   
+  // プロフィール更新関連
+  profileUpdateStart: () => notify.loading('プロフィールを更新中...'),
+  profileUpdateSuccess: (toastId: string | number) => notify.updateLoading(toastId, 'プロフィールを更新しました'),
+  profileUpdateError: (toastId: string | number) => notify.updateLoading(toastId, 'プロフィール更新に失敗しました', 'error'),
+  
   // 農地削除関連
   deleteStart: () => notify.loading('農地を削除中...'),
   deleteSuccess: (toastId: string | number) => notify.updateLoading(toastId, '農地を削除しました'),
