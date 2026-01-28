@@ -96,6 +96,7 @@ export default function ProfileEditPage() {
 
       const result = await response.json()
       console.log('APIレスポンスボディ:', result) // デバッグ
+      console.log('user.phone:', result.user.phone) // デバッグ: phoneが入っているか確認
       
       // セッション更新
       await update({
