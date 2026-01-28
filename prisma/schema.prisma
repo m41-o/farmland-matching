@@ -20,6 +20,8 @@ model User {
   name          String?
   // phone: 電話番号（任意）。
   phone         String?
+  // profileImage: プロフィール画像（Base64またはURL）。
+  profileImage  String?   @map("profile_image") @db.Text
   // role: ユーザーの役割を表すenum。デフォルトは SEEKER です。
   role          UserRole  @default(SEEKER)
   // createdAt: レコード作成日時。"created_at" というカラム名でDBに保存。

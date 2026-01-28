@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Link from "next/link"
-import { Plus, MapPin, Heart } from "lucide-react"
+import { Plus, MapPin, Heart, Settings } from "lucide-react"
 import { redirect } from "next/navigation"
 // 認証とデータベースアクセス用のインポート
 import { auth } from "@/app/lib/auth"
@@ -84,11 +84,19 @@ export default async function ProfilePage() {
       <main className="flex-1">
         <div className="container mx-auto px-4 py-12">
           {/* プロフィールヘッダー */}
-          <div className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-              {user.name || "ユーザー"}
-            </h1>
-            <p className="text-muted-foreground">{user.email}</p>
+          <div className="mb-8 flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
+                {user.name || "ユーザー"}
+              </h1>
+              <p className="text-muted-foreground">{user.email}</p>
+            </div>
+            <Button asChild variant="outline" size="sm" className="flex items-center gap-2">
+              <Link href="/profile/edit">
+                <Settings className="h-4 w-4" />
+                編集
+              </Link>
+            </Button>
           </div>
 
           {/* タブナビゲーション */}
