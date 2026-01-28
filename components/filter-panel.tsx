@@ -15,6 +15,14 @@ interface FilterPanelProps {
     maxPrice: number
     features: string[]
   }) => void
+  // URL パラメータから渡された初期フィルタ値
+  initialFilters?: {
+    minArea: number
+    maxArea: number
+    minPrice: number
+    maxPrice: number
+    features: string[]
+  }
 }
 
 const infrastructureOptions = [
@@ -27,10 +35,19 @@ const infrastructureOptions = [
   { id: "parking", label: "駐車場あり", icon: Car },
 ]
 
-export function FilterPanel({ onFilter }: FilterPanelProps) {
-  const [areaRange, setAreaRange] = useState([0, 5000])
-  const [priceRange, setPriceRange] = useState([0, 100000])
-  const [selectedFeatures, setSelectedFeatures] = useState<string[]>([])
+export function FilterPanel({ onFilter, initialFilters }: FilterPanelProps) {
+  // 初期フィルタ値が渡されていればそれを使用、なければデフォルト値を使用
+  const [areaRange, setAreaRange] = useState([
+    initialFilters?.minArea ?? 0,
+    initialFilters?.maxArea ?? 5000,
+  ])
+  const [priceRange, setPriceRange] = useState([
+    initialFilters?.minPrice ?? 0,
+    initialFilters?.maxPrice ?? 100000,
+  ])
+  const [selectedFeatures, setSelectedFeatures] = useState<string[]>(
+    initialFilters?.features ?? []
+  )
 
   const handleFeatureToggle = (featureId: string) => {
     setSelectedFeatures((prev) =>

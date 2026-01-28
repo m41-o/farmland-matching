@@ -17,6 +17,16 @@ const farmlandSchema = z.object({
   latitude: z.number().optional().nullable(), // nullを許可
   longitude: z.number().optional().nullable(), // nullを許可
   images: z.array(z.string()).optional().nullable(),
+  // 設備情報：各項目が真偽値であることを検証
+  facilities: z.object({
+    shed: z.boolean().optional(),
+    toilet: z.boolean().optional(),
+    water: z.boolean().optional(),
+    electricity: z.boolean().optional(),
+    signal5g: z.boolean().optional(),
+    signal4g: z.boolean().optional(),
+    parking: z.boolean().optional(),
+  }).optional().nullable(),
 })
 
 /**
@@ -85,6 +95,9 @@ export async function GET(request: Request) {
     const maxArea = searchParams.get('maxArea')
     const minPrice = searchParams.get('minPrice')
     const maxPrice = searchParams.get('maxPrice')
+    const keyword = searchParams.get('keyword')
+    // 設備フィルタはカンマ区切り文字列で受け取る（例: "shed,water,electricity"）
+    const facilitiesParam = searchParams.get('facilities')
     const page = searchParams.get('page') || '1'
     const limit = searchParams.get('limit') || '10'
 
@@ -92,6 +105,25 @@ export async function GET(request: Request) {
     const pageNum = Math.max(1, parseInt(page))
     const limitNum = Math.min(100, Math.max(1, parseInt(limit)))
     const skip = (pageNum - 1) * limitNum
+
+    // 設備フィルタ条件を構築
+    // facilitiesParam が "shed,water" なら、AND条件で複数の設備を検索
+    const facilitiesConditions = facilitiesParam
+      ? facilitiesParam.split(',').map((facility) => ({
+          [`facilities.${facility.trim()}`]: true,
+        }))
+      : []
+
+    // キーワード条件を構築
+    // 農地の説明(description)と名前(name)の両方から検索
+    const keywordCondition = keyword
+      ? {
+          OR: [
+            { description: { contains: keyword } },
+            { name: { contains: keyword } },
+          ],
+        }
+      : {}
 
     // Where 条件を構築
     const where = {
@@ -102,6 +134,12 @@ export async function GET(request: Request) {
       ...(maxArea && { area: { lte: parseFloat(maxArea) } }),
       ...(minPrice && { price: { gte: parseInt(minPrice) } }),
       ...(maxPrice && { price: { lte: parseInt(maxPrice) } }),
+      // 複数の設備条件がある場合は AND ですべてマッチするもののみ
+      ...(facilitiesConditions.length > 0 && {
+        AND: facilitiesConditions,
+      }),
+      // キーワード検索条件
+      ...keywordCondition,
     }
 
     // 総数とデータを並列取得
@@ -177,6 +215,7 @@ export async function POST(request: Request) {
       latitude,
       longitude,
       images,
+      facilities,
     } = validatedData.data
 
     // 農地を作成
@@ -194,6 +233,7 @@ export async function POST(request: Request) {
         latitude: latitude || null,
         longitude: longitude || null,
         images: images || [],
+        facilities: facilities || {},
         providerId: session.user.id,
         status: 'PUBLIC',
       },

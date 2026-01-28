@@ -77,6 +77,10 @@ model Farmland {
   longitude     Float?
   images        Json
   
+  // 設備情報を JSON 形式で保存（小屋、トイレ、水利、電気、通信、駐車場などの有無）
+  // 例: { "shed": true, "toilet": false, "water": true, ... }
+  facilities    Json?     @default("{}")
+  
   status        FarmlandStatus @default(PUBLIC)
   
   createdAt     DateTime  @default(now()) @map("created_at")

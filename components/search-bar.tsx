@@ -4,8 +4,8 @@ import { Search, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useState, useEffect } from "react"
 
 // 都道府県一覧
 const prefectures = [
@@ -60,18 +60,40 @@ const prefectures = [
 
 export function SearchBar() {
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   // フォームの状態管理
+  // URL パラメータがあればそれを初期値に、なければ空文字
   const [prefecture, setPrefecture] = useState("")
   const [city, setCity] = useState("")
   const [keyword, setKeyword] = useState("")
 
+  // コンポーネントマウント時に URL パラメータを読み込む
+  useEffect(() => {
+    setPrefecture(searchParams.get('prefecture') || '')
+    setCity(searchParams.get('city') || '')
+    setKeyword(searchParams.get('keyword') || '')
+  }, [searchParams])
+
   /**
    * 検索ハンドラー
    * 検索条件をクエリパラメータとして /search にリダイレクト
+   * 空の条件はパラメータに含めない
    */
   const handleSearch = () => {
-    router.push("/search")
+    // URL パラメータを構築
+    const params = new URLSearchParams()
+    
+    // 空でないパラメータのみ追加
+    if (prefecture) params.append('prefecture', prefecture)
+    if (city) params.append('city', city)
+    if (keyword) params.append('keyword', keyword)
+
+    // パラメータがある場合は付加、ない場合は /search のみ
+    const queryString = params.toString()
+    const searchUrl = queryString ? `/search?${queryString}` : '/search'
+    
+    router.push(searchUrl)
   }
 
   /**

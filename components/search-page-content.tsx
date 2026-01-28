@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { FilterPanel } from "@/components/filter-panel"
 import { MapView } from "@/components/map-view"
 import { ListingCard } from "@/components/listing-card"
@@ -40,11 +41,54 @@ export interface SearchListing {
  * マップビューとリストビュー、フィルターパネルを統合
  */
 export function SearchPageContent() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
   // データ取得用のstate
   const [mockListings, setMockListings] = useState<SearchListing[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
-  // ページロード時にデータを取得
+  // フィルタ条件用のstate（URL パラメータから初期化）
+  const [filters, setFilters] = useState({
+    prefecture: searchParams.get('prefecture') || '',
+    city: searchParams.get('city') || '',
+    keyword: searchParams.get('keyword') || '',
+    minArea: parseInt(searchParams.get('minArea') || '0'),
+    maxArea: parseInt(searchParams.get('maxArea') || '5000'),
+    minPrice: parseInt(searchParams.get('minPrice') || '0'),
+    maxPrice: parseInt(searchParams.get('maxPrice') || '100000'),
+    features: (searchParams.get('facilities') || '').split(',').filter(Boolean),
+  })
+
+  // API クエリパラメータを構築する関数
+  const buildQueryParams = (filterData: typeof filters) => {
+    const params = new URLSearchParams()
+    
+    if (filterData.prefecture) params.append('prefecture', filterData.prefecture)
+    if (filterData.city) params.append('city', filterData.city)
+    if (filterData.keyword) params.append('keyword', filterData.keyword)
+    if (filterData.minArea !== 0) params.append('minArea', filterData.minArea.toString())
+    if (filterData.maxArea !== 5000) params.append('maxArea', filterData.maxArea.toString())
+    if (filterData.minPrice !== 0) params.append('minPrice', filterData.minPrice.toString())
+    if (filterData.maxPrice !== 100000) params.append('maxPrice', filterData.maxPrice.toString())
+    if (filterData.features.length > 0) params.append('facilities', filterData.features.join(','))
+    
+    params.append('limit', '100')
+    
+    return params.toString()
+  }
+
+  // フィルタが変更されたときにページネーションを反映し、URL を更新
+  const updateFilters = (newFilters: typeof filters) => {
+    setFilters(newFilters)
+    
+    // URL を更新
+    const queryString = buildQueryParams(newFilters)
+    const newUrl = queryString ? `/search?${queryString}` : '/search'
+    router.push(newUrl, { scroll: false })
+  }
+
+  // ページロード時およびフィルタ変更時にデータを取得
   useEffect(() => {
     async function loadListings() {
       try {
@@ -72,7 +116,11 @@ export function SearchPageContent() {
           description: listing.description.split("\n")[0],
         }))
 
-        const response = await fetch('/api/farmland?limit=100')
+        // API クエリを構築
+        const queryString = buildQueryParams(filters)
+        const apiUrl = `/api/farmland?${queryString}`
+        
+        const response = await fetch(apiUrl)
         console.log('APIレスポンスステータス:', response.status)
         
         if (response.ok) {
@@ -90,14 +138,15 @@ export function SearchPageContent() {
             image: farmland.images?.[0] || '/placeholder.svg',
             lat: farmland.latitude || 36.8,
             lng: farmland.longitude || 137.7,
+            // DB に保存された facilities から設備情報を取得
             features: {
-              shed: false,
-              toilet: false,
-              water: false,
-              electricity: false,
-              signal5g: false,
-              signal4g: false,
-              parking: false,
+              shed: farmland.facilities?.shed || false,
+              toilet: farmland.facilities?.toilet || false,
+              water: farmland.facilities?.water || false,
+              electricity: farmland.facilities?.electricity || false,
+              signal5g: farmland.facilities?.signal5g || false,
+              signal4g: farmland.facilities?.signal4g || false,
+              parking: farmland.facilities?.parking || false,
             },
             description: farmland.description || '農地',
           }))
@@ -141,59 +190,42 @@ export function SearchPageContent() {
     }
 
     loadListings()
-  }, [])
+  }, [filters])
 
   // ステート管理
   const [viewMode, setViewMode] = useState<"map" | "list">("map")
   const [selectedListing, setSelectedListing] = useState<SearchListing | null>(null)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
-  const [filteredListings, setFilteredListings] = useState<SearchListing[]>([])
-
-  // データが更新されたときにfilteredListingsも更新
-  useEffect(() => {
-    setFilteredListings(mockListings)
-  }, [mockListings])
 
   /**
    * フィルター適用ハンドラー
-   * 面積、価格、設備条件に基づいて農地をフィルタリング
+   * フィルタパネルから呼ばれる
+   * URL パラメータと filters state を更新
    */
-  const handleFilter = (filters: {
+  const handleFilter = (filterUpdate: {
     minArea: number
     maxArea: number
     minPrice: number
     maxPrice: number
     features: string[]
   }) => {
-    const filtered = mockListings.filter((listing) => {
-      // 面積でフィルター
-      if (listing.area < filters.minArea || listing.area > filters.maxArea) return false
-
-      // 価格でフィルター
-      if (listing.price < filters.minPrice || listing.price > filters.maxPrice) return false
-
-      // 設備でフィルター
-      for (const feature of filters.features) {
-        if (feature === "shed" && !listing.features.shed) return false
-        if (feature === "toilet" && !listing.features.toilet) return false
-        if (feature === "water" && !listing.features.water) return false
-        if (feature === "electricity" && !listing.features.electricity) return false
-        if (feature === "signal5g" && !listing.features.signal5g) return false
-        if (feature === "signal4g" && !listing.features.signal4g) return false
-        if (feature === "parking" && !listing.features.parking) return false
-      }
-
-      return true
-    })
-
-    setFilteredListings(filtered)
+    const newFilters = {
+      ...filters,
+      minArea: filterUpdate.minArea,
+      maxArea: filterUpdate.maxArea,
+      minPrice: filterUpdate.minPrice,
+      maxPrice: filterUpdate.maxPrice,
+      features: filterUpdate.features,
+    }
+    
+    updateFilters(newFilters)
   }
 
   return (
     <div className="h-[calc(100vh-64px)] flex flex-col lg:flex-row">
       {/* モバイル用フィルタートグル */}
       <div className="lg:hidden flex items-center justify-between p-4 border-b border-border bg-card">
-        <span className="text-sm text-muted-foreground">{filteredListings.length}件の農地</span>
+        <span className="text-sm text-muted-foreground">{mockListings.length}件の農地</span>
         <div className="flex gap-2">
           <Button
             variant={viewMode === "map" ? "default" : "outline"}
@@ -226,9 +258,16 @@ export function SearchPageContent() {
           </div>
           <div className="overflow-y-auto h-[calc(100%-60px)] p-4">
             <FilterPanel
-              onFilter={(filters) => {
-                handleFilter(filters)
+              onFilter={(filterData) => {
+                handleFilter(filterData)
                 setIsFilterOpen(false)
+              }}
+              initialFilters={{
+                minArea: filters.minArea,
+                maxArea: filters.maxArea,
+                minPrice: filters.minPrice,
+                maxPrice: filters.maxPrice,
+                features: filters.features,
               }}
             />
           </div>
@@ -240,11 +279,20 @@ export function SearchPageContent() {
         <div className="p-4 border-b border-border">
           <h2 className="font-semibold text-foreground">絞り込み条件</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            {filteredListings.length}件の農地が見つかりました
+            {mockListings.length}件の農地が見つかりました
           </p>
         </div>
         <div className="p-4">
-          <FilterPanel onFilter={handleFilter} />
+          <FilterPanel 
+            onFilter={handleFilter}
+            initialFilters={{
+              minArea: filters.minArea,
+              maxArea: filters.maxArea,
+              minPrice: filters.minPrice,
+              maxPrice: filters.maxPrice,
+              features: filters.features,
+            }}
+          />
         </div>
       </aside>
 
@@ -253,7 +301,7 @@ export function SearchPageContent() {
         {/* マップビュー（デスクトップは常に表示、モバイルは条件付き） */}
         <div className={`${viewMode === "map" ? "block" : "hidden"} lg:block h-full`}>
           <MapView
-            farmlands={filteredListings as any}
+            farmlands={mockListings as any}
             selectedFarmland={selectedListing as any}
             onSelectFarmland={setSelectedListing as any}
           />
@@ -262,7 +310,7 @@ export function SearchPageContent() {
         {/* リストビュー（モバイルのみ） */}
         <div className={`${viewMode === "list" ? "block" : "hidden"} lg:hidden h-full overflow-y-auto p-4`}>
           <div className="space-y-4">
-            {filteredListings.map((listing) => (
+            {mockListings.map((listing) => (
               <ListingCard
                 key={listing.id}
                 listing={listing}
