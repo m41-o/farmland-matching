@@ -1,8 +1,6 @@
 'use client'
 
 import { useState, useEffect } from "react"
-// @ts-ignore
-import { useQuery } from "@tanstack/react-query"
 import { FilterPanel } from "@/components/filter-panel"
 import { MapView } from "@/components/map-view"
 import { ListingCard } from "@/components/listing-card"
@@ -36,109 +34,114 @@ export interface SearchListing {
   description: string
 }
 
-// データ取得関数（キャッシング対象）
-const fetchFarmlands = async (): Promise<SearchListing[]> => {
-  try {
-    // ダミーデータを事前に変換
-    const fallbackListings = dummyListings.map((listing) => ({
-      id: listing.id,
-      title: listing.title,
-      location: listing.location,
-      prefecture: listing.prefecture,
-      city: listing.city,
-      area: listing.area,
-      price: listing.price,
-      image: listing.images[0],
-      lat: listing.lat,
-      lng: listing.lng,
-      features: {
-        shed: listing.features.shed.available,
-        toilet: listing.features.toilet.available,
-        water: listing.features.water.available,
-        electricity: listing.features.electricity.available,
-        signal5g: listing.features.communication.signal5g,
-        signal4g: listing.features.communication.signal4g,
-        parking: listing.features.access.parking,
-      },
-      description: listing.description.split("\n")[0],
-    }))
-
-    const response = await fetch('/api/farmland?limit=100')
-    console.log('APIレスポンスステータス:', response.status)
-    
-    if (response.ok) {
-      const data = await response.json()
-      console.log('取得したデータ:', data)
-      
-      const dbListings = data.data.map((farmland: Record<string, any>) => ({
-        id: farmland.id,
-        title: farmland.name || '農地',
-        location: `${farmland.prefecture}${farmland.city}${farmland.address}`,
-        prefecture: farmland.prefecture,
-        city: farmland.city,
-        area: farmland.area,
-        price: farmland.price || 0,
-        image: farmland.images?.[0] || '/placeholder.svg',
-        lat: farmland.latitude || 36.8,
-        lng: farmland.longitude || 137.7,
-        features: {
-          shed: false,
-          toilet: false,
-          water: false,
-          electricity: false,
-          signal5g: false,
-          signal4g: false,
-          parking: false,
-        },
-        description: farmland.description || '農地',
-      }))
-      
-      console.log('結合後のリスティング:', dbListings)
-      return dbListings
-    } else {
-      console.error('APIエラーステータス:', response.status)
-      return fallbackListings
-    }
-  } catch (error) {
-    console.error('データ取得エラー:', error)
-    return dummyListings.map((listing) => ({
-      id: listing.id,
-      title: listing.title,
-      location: listing.location,
-      prefecture: listing.prefecture,
-      city: listing.city,
-      area: listing.area,
-      price: listing.price,
-      image: listing.images[0],
-      lat: listing.lat,
-      lng: listing.lng,
-      features: {
-        shed: listing.features.shed.available,
-        toilet: listing.features.toilet.available,
-        water: listing.features.water.available,
-        electricity: listing.features.electricity.available,
-        signal5g: listing.features.communication.signal5g,
-        signal4g: listing.features.communication.signal4g,
-        parking: listing.features.access.parking,
-      },
-      description: listing.description.split("\n")[0],
-    }))
-  }
-}
-
 /**
  * SearchPageContent コンポーネント
  * 農地検索ページのメインコンテンツ
  * マップビューとリストビュー、フィルターパネルを統合
  */
 export function SearchPageContent() {
-  // React Query でデータを取得（キャッシング + 自動リフレッシュ）
-  const { data: mockListings = [], isLoading } = useQuery({
-    queryKey: ['farmlands'],
-    queryFn: fetchFarmlands,
-    staleTime: 5 * 60 * 1000, // 5分間はキャッシュを使用
-    gcTime: 10 * 60 * 1000, // 10分後にガベージコレクション
-  })
+  // データ取得用のstate
+  const [mockListings, setMockListings] = useState<SearchListing[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  // ページロード時にデータを取得
+  useEffect(() => {
+    async function loadListings() {
+      try {
+        // ダミーデータを先に変換
+        const fallbackListings = dummyListings.map((listing) => ({
+          id: listing.id,
+          title: listing.title,
+          location: listing.location,
+          prefecture: listing.prefecture,
+          city: listing.city,
+          area: listing.area,
+          price: listing.price,
+          image: listing.images[0],
+          lat: listing.lat,
+          lng: listing.lng,
+          features: {
+            shed: listing.features.shed.available,
+            toilet: listing.features.toilet.available,
+            water: listing.features.water.available,
+            electricity: listing.features.electricity.available,
+            signal5g: listing.features.communication.signal5g,
+            signal4g: listing.features.communication.signal4g,
+            parking: listing.features.access.parking,
+          },
+          description: listing.description.split("\n")[0],
+        }))
+
+        const response = await fetch('/api/farmland?limit=100')
+        console.log('APIレスポンスステータス:', response.status)
+        
+        if (response.ok) {
+          const data = await response.json()
+          console.log('取得したデータ:', data)
+          
+          const dbListings = data.data.map((farmland: Record<string, any>) => ({
+            id: farmland.id,
+            title: farmland.name || '農地',
+            location: `${farmland.prefecture}${farmland.city}${farmland.address}`,
+            prefecture: farmland.prefecture,
+            city: farmland.city,
+            area: farmland.area,
+            price: farmland.price || 0,
+            image: farmland.images?.[0] || '/placeholder.svg',
+            lat: farmland.latitude || 36.8,
+            lng: farmland.longitude || 137.7,
+            features: {
+              shed: false,
+              toilet: false,
+              water: false,
+              electricity: false,
+              signal5g: false,
+              signal4g: false,
+              parking: false,
+            },
+            description: farmland.description || '農地',
+          }))
+          
+          console.log('結合後のリスティング:', dbListings)
+          setMockListings(dbListings)
+        } else {
+          console.error('APIエラーステータス:', response.status)
+          // APIエラー時はダミーデータのみ
+          setMockListings(fallbackListings)
+        }
+      } catch (error) {
+        console.error('データ取得エラー:', error)
+        // エラー時もダミーデータを使用
+        const fallbackListings = dummyListings.map((listing) => ({
+          id: listing.id,
+          title: listing.title,
+          location: listing.location,
+          prefecture: listing.prefecture,
+          city: listing.city,
+          area: listing.area,
+          price: listing.price,
+          image: listing.images[0],
+          lat: listing.lat,
+          lng: listing.lng,
+          features: {
+            shed: listing.features.shed.available,
+            toilet: listing.features.toilet.available,
+            water: listing.features.water.available,
+            electricity: listing.features.electricity.available,
+            signal5g: listing.features.communication.signal5g,
+            signal4g: listing.features.communication.signal4g,
+            parking: listing.features.access.parking,
+          },
+          description: listing.description.split("\n")[0],
+        }))
+        setMockListings(fallbackListings)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadListings()
+  }, [])
 
   // ステート管理
   const [viewMode, setViewMode] = useState<"map" | "list">("map")
@@ -162,7 +165,7 @@ export function SearchPageContent() {
     maxPrice: number
     features: string[]
   }) => {
-    const filtered = mockListings.filter((listing: SearchListing) => {
+    const filtered = mockListings.filter((listing) => {
       // 面積でフィルター
       if (listing.area < filters.minArea || listing.area > filters.maxArea) return false
 
