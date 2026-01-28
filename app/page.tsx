@@ -1,5 +1,7 @@
 'use client'
 
+import { useSession } from 'next-auth/react'
+import { useEffect } from 'react'
 import { HeroSection } from "@/components/hero-section"
 import { SearchBar } from "@/components/search-bar"
 import { ThreeStepsGuide } from "@/components/three-steps-guide"
@@ -14,6 +16,12 @@ import { Search, Plus, FileText } from "lucide-react"
  * 背景画像を変更する場合は、HeroSection に backgroundImage プロップを渡してください
  */
 export default function HomePage() {
+  const { data: session, status } = useSession()
+
+  useEffect(() => {
+    console.log('Session status:', status)
+    console.log('Session data:', session)
+  }, [session, status])
   return (
     <div className="min-h-screen flex flex-col">
       <main className="flex-1">

@@ -45,22 +45,29 @@ export default function LoginPage() {
         redirect: false,
       })
 
+      console.log('signIn result:', result) // デバッグ用
+
       if (!result?.ok) {
         setServerError('メールアドレスまたはパスワードが正しくありません')
         toastNotify.loginError()
+        setIsLoading(false)
         return
       }
 
       // ログイン成功通知
       toastNotify.loginSuccess()
       
-      // ホームページへ
-      router.push('/')
+      console.log('ログイン成功、リダイレクト開始...')
+      
+      // リダイレクト
+      setTimeout(() => {
+        router.push('/')
+      }, 1000)
+      
     } catch (error) {
-      console.error('ログインエラー:', error)
+      console.error('ログインエラー詳細:', error)
       setServerError('ネットワークエラーが発生しました')
       toastNotify.generalError('ネットワークエラーが発生しました')
-    } finally {
       setIsLoading(false)
     }
   }
