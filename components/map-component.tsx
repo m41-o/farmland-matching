@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useMemo, useCallback, React } from 'react'
+import React, { useEffect, useState, useMemo, useCallback } from 'react'
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import type { SearchListing } from '@/components/search-page-content'
