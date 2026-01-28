@@ -57,26 +57,35 @@ export default function ProfileEditPage() {
 
   // プロフィール保存
   const handleSaveProfile = async () => {
+    console.log('保存開始:', profileData, profileImage) // デバッグ
     setIsLoadingProfile(true)
     const toastId = toastNotify.profileUpdateStart()
 
     try {
+      const payload = {
+        name: profileData.name || undefined,
+        phone: profileData.phone || undefined,
+        profileImage: profileImage || undefined,
+      }
+      
+      console.log('送信データ:', payload) // デバッグ
+
       const response = await fetch('/api/user/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: profileData.name || undefined,
-          phone: profileData.phone || undefined,
-          profileImage: profileImage || undefined,
-        }),
+        body: JSON.stringify(payload),
       })
+
+      console.log('APIレスポンス:', response.status) // デバッグ
 
       if (!response.ok) {
         const error = await response.json()
+        console.error('APIエラー:', error) // デバッグ
         throw new Error(error.error || 'プロフィール更新に失敗しました')
       }
 
       const result = await response.json()
+      console.log('APIレスポンスボディ:', result) // デバッグ
       
       // セッション更新
       await update({
@@ -86,6 +95,7 @@ export default function ProfileEditPage() {
 
       toastNotify.profileUpdateSuccess(toastId)
     } catch (error: any) {
+      console.error('エラー詳細:', error) // デバッグ
       toastNotify.profileUpdateError(toastId)
       console.error('プロフィール更新エラー:', error)
     } finally {
