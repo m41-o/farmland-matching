@@ -62,6 +62,7 @@ export const authConfig = {
     async jwt({ token, user }: { token: any; user: any }) {
       if (user) {
         token.role = user.role
+        token.phone = user.phone
       }
       return token
     },
@@ -69,6 +70,7 @@ export const authConfig = {
       if (session.user) {
         session.user.id = token.sub!
         session.user.role = token.role as string
+        session.user.phone = token.phone as string
       }
       return session
     },

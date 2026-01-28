@@ -19,11 +19,21 @@ export default function ProfileEditPage() {
 
   // プロフィール編集フォーム
   const [profileData, setProfileData] = useState({
-    name: session?.user?.name || '',
+    name: '',
     phone: '',
   })
   const [profileImage, setProfileImage] = useState<string | null>(null)
   const [isLoadingProfile, setIsLoadingProfile] = useState(false)
+
+  // セッション変更時に初期値を更新
+  useEffect(() => {
+    if (session?.user) {
+      setProfileData({
+        name: session.user.name || '',
+        phone: (session.user as any).phone || '',
+      })
+    }
+  }, [session?.user])
 
   // パスワード変更フォーム
   const [passwordData, setPasswordData] = useState({
