@@ -7,7 +7,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Avatar } from '@/components/ui/avatar'
 import { ArrowLeft, Upload, Eye, EyeOff, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { toastNotify, notify } from '@/lib/notifications'
