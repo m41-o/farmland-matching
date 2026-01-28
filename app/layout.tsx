@@ -3,8 +3,8 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Noto_Sans_JP } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
-import { SessionProvider } from "next-auth/react"
 import { Header } from "@/components/header"
+import { Providers } from "@/app/providers"
 import "./globals.css"
 
 const geist = Geist({ subsets: ["latin"] })
@@ -25,10 +25,10 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className="font-sans antialiased">
-        <SessionProvider>
+        <Providers>
           <Header />
           {children}
-        </SessionProvider>
+        </Providers>
         <Analytics />
       </body>
     </html>
