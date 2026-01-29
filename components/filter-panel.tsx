@@ -87,7 +87,7 @@ export function FilterPanel({ onFilter, initialFilters }: FilterPanelProps) {
           value={areaRange} 
           onValueChange={setAreaRange} 
           min={0} 
-          max={10000}  {/* 上限を 10000 に拡大 */}
+          max={10000}
           step={100} 
           className="mb-2"
         />
@@ -125,7 +125,7 @@ export function FilterPanel({ onFilter, initialFilters }: FilterPanelProps) {
           value={priceRange} 
           onValueChange={setPriceRange} 
           min={0} 
-          max={500000}  {/* 上限を 500000 に拡大 */}
+          max={500000}
           step={5000} 
           className="mb-2"
         />
