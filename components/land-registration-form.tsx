@@ -361,11 +361,30 @@ export function LandRegistrationForm() {
                     
                     const promises = files.map((file) => {
                       return new Promise<string>((resolve) => {
-                        const reader = new FileReader()
-                        reader.onload = (event) => {
-                          resolve(event.target?.result as string)
+                        // 画像を圧縮してから Base64 に変換
+                        const canvas = document.createElement('canvas')
+                        const ctx = canvas.getContext('2d')!
+                        const img = new Image()
+                        
+                        img.onload = () => {
+                          // 最大幅1200px、アスペクト比を保持
+                          let width = img.width
+                          let height = img.height
+                          
+                          if (width > 1200) {
+                            height = (height * 1200) / width
+                            width = 1200
+                          }
+                          
+                          canvas.width = width
+                          canvas.height = height
+                          ctx.drawImage(img, 0, 0, width, height)
+                          
+                          // JPEG品質70%で圧縮
+                          resolve(canvas.toDataURL('image/jpeg', 0.7))
                         }
-                        reader.readAsDataURL(file)
+                        
+                        img.src = URL.createObjectURL(file)
                       })
                     })
                     Promise.all(promises).then((images) => {
@@ -383,11 +402,30 @@ export function LandRegistrationForm() {
                       const files = Array.from(e.target.files || [])
                       const promises = files.map((file) => {
                         return new Promise<string>((resolve) => {
-                          const reader = new FileReader()
-                          reader.onload = (event) => {
-                            resolve(event.target?.result as string)
+                          // 画像を圧縮してから Base64 に変換
+                          const canvas = document.createElement('canvas')
+                          const ctx = canvas.getContext('2d')!
+                          const img = new Image()
+                          
+                          img.onload = () => {
+                            // 最大幅1200px、アスペクト比を保持
+                            let width = img.width
+                            let height = img.height
+                            
+                            if (width > 1200) {
+                              height = (height * 1200) / width
+                              width = 1200
+                            }
+                            
+                            canvas.width = width
+                            canvas.height = height
+                            ctx.drawImage(img, 0, 0, width, height)
+                            
+                            // JPEG品質70%で圧縮
+                            resolve(canvas.toDataURL('image/jpeg', 0.7))
                           }
-                          reader.readAsDataURL(file)
+                          
+                          img.src = URL.createObjectURL(file)
                         })
                       })
                       Promise.all(promises).then((images) => {
