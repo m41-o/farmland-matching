@@ -39,11 +39,11 @@ export function FilterPanel({ onFilter, initialFilters }: FilterPanelProps) {
   // 初期フィルタ値が渡されていればそれを使用、なければデフォルト値を使用
   const [areaRange, setAreaRange] = useState([
     initialFilters?.minArea ?? 0,
-    initialFilters?.maxArea ?? 5000,
+    initialFilters?.maxArea ?? 10000, // 上限を10000に拡大
   ])
   const [priceRange, setPriceRange] = useState([
     initialFilters?.minPrice ?? 0,
-    initialFilters?.maxPrice ?? 100000,
+    initialFilters?.maxPrice ?? 500000, // 上限を500000に拡大
   ])
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>(
     initialFilters?.features ?? []
@@ -87,7 +87,7 @@ export function FilterPanel({ onFilter, initialFilters }: FilterPanelProps) {
           value={areaRange} 
           onValueChange={setAreaRange} 
           min={0} 
-          max={5000} 
+          max={10000}  {/* 上限を 10000 に拡大 */}
           step={100} 
           className="mb-2"
         />
@@ -109,7 +109,7 @@ export function FilterPanel({ onFilter, initialFilters }: FilterPanelProps) {
             className="flex-1 px-2 py-1 border border-input rounded text-sm bg-background"
             placeholder="最大値"
             min={0}
-            max={5000}
+            max={10000}
           />
         </div>
         <div className="flex justify-between text-sm text-muted-foreground mt-1">
@@ -125,8 +125,8 @@ export function FilterPanel({ onFilter, initialFilters }: FilterPanelProps) {
           value={priceRange} 
           onValueChange={setPriceRange} 
           min={0} 
-          max={100000} 
-          step={1000} 
+          max={500000}  {/* 上限を 500000 に拡大 */}
+          step={5000} 
           className="mb-2"
         />
         <div className="flex gap-2 mt-2">
@@ -147,7 +147,7 @@ export function FilterPanel({ onFilter, initialFilters }: FilterPanelProps) {
             className="flex-1 px-2 py-1 border border-input rounded text-sm bg-background"
             placeholder="最大値"
             min={0}
-            max={100000}
+            max={500000}
           />
         </div>
         <div className="flex justify-between text-sm text-muted-foreground mt-1">
