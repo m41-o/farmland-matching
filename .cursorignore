@@ -1,0 +1,6 @@
+
+node_modules/
+dist/
+.git/
+*.log
+# その他、重そうなフォルダがあれば追加
