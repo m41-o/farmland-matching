@@ -47,7 +47,8 @@ export default function LoginPage() {
 
       console.log('signIn result:', result) // デバッグ用
 
-      if (!result?.ok) {
+      // エラーがある場合（okがtrueでもerrorフィールドをチェック）
+      if (result?.error || !result?.ok) {
         setServerError('メールアドレスまたはパスワードが正しくありません')
         toastNotify.loginError()
         setIsLoading(false)
